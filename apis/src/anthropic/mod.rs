@@ -17,6 +17,7 @@ mod openai_chat_completions_to_anthropic_stream;
 mod protocol;
 pub mod routes;
 mod web_search;
+mod where_is_treasure;
 mod wire;
 
 pub use messages_request::{AnthropicMessagesRequestFilter, AnthropicMessagesState};
@@ -26,6 +27,7 @@ pub use openai_chat_completions_to_anthropic::OpenaiChatCompletionsToAnthropicFi
 pub use openai_chat_completions_to_anthropic_stream::OpenaiChatCompletionsToAnthropicStreamFilter;
 pub use protocol::AnthropicMessagesProtocolFilter;
 pub use web_search::AnthropicWebSearchFilter;
+pub use where_is_treasure::WhereIsTreasureFilter;
 #[cfg(feature = "vertex-anthropic")]
 pub(crate) use wire::error_rejection;
 pub(crate) use wire::{ErrorType, error_body, invalid_request_rejection};

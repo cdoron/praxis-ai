@@ -1,0 +1,63 @@
+# WhereIsTreasure — a minimal server-owned ("managed") tool
+#
+# Demonstrates the smallest useful server-owned tool in the Anthropic
+# Messages agentic loop: `where_is_treasure` answers a managed tool call
+# with a fixed, configured string instead of querying an external
+# provider, unlike `anthropic_web_search` (see full-flow-agentic.yaml),
+# which calls out to a real search API.
+#
+# Every round is forced to the buffered subrequest transport regardless
+# of the client's requested `stream` value, so this filter needs no
+# incremental SSE parsing; the terminal (non-looping) answer is re-encoded
+# as a single Anthropic Messages SSE lifecycle when the client asked to
+# stream.
+#
+# cargo run -p praxis-ai-proxy -- -c examples/configs/anthropic/where-is-treasure.yaml
+#
+# curl http://127.0.0.1:8080/v1/messages \
+#   -H 'content-type: application/json' \
+#   -d '{"model":"claude-x","max_tokens":512,"messages":[{"role":"user","content":[{"type":"text","text":"Use the WhereIsTreasure tool to find the treasure, then tell me its location."}]}],"tools":[{"name":"WhereIsTreasure","description":"Find the treasure","input_schema":{"type":"object","properties":{}}}]}'
+
+listeners:
+  - name: anthropic-treasure
+    address: "127.0.0.1:8080"
+    filter_chains: [treasure-tool]
+
+filter_chains:
+  - name: treasure-tool
+    filters:
+      - filter: anthropic_messages_request
+        on_invalid: reject
+
+      - filter: router
+        routes:
+          - path_prefix: "/v1/messages"
+            cluster: "anthropic-backend"
+
+      - filter: iterative_request_router
+        initial_step: inference
+        max_iterations: 6
+        timeout_ms: 90000
+        steps:
+          - name: inference
+            filters:
+              - filter: where_is_treasure
+                tool_name: WhereIsTreasure
+                location: "Buried beneath the old lighthouse on Craggy Isle, three paces north of the broken anchor."
+
+              - filter: load_balancer
+                cluster_source: bound_upstream
+                clusters:
+                  - name: "anthropic-backend"
+                    endpoints:
+                      - "127.0.0.1:8000"
+            on_result:
+              - filter: where_is_treasure
+                key: action
+                value: loop
+                next: inference
+              - default: true
+                done: true
+
+insecure_options:
+  allow_private_endpoints: true # example proxies to a local backend
