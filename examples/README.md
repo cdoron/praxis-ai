@@ -106,6 +106,7 @@ for how these are authored and regenerated.
 | [web-search-file-key.yaml](configs/anthropic/web-search-file-key.yaml) | A minimal Anthropic Messages web-search gateway that sources the shared Brave provider key from a projected FILE instead of an environment variable |
 | [web-search-scoped-credentials.yaml](configs/anthropic/web-search-scoped-credentials.yaml) | A scoped-credentials variant of full-flow-agentic.yaml |
 | [web-search-tavily-scoped-credentials.yaml](configs/anthropic/web-search-tavily-scoped-credentials.yaml) | A scoped-credentials variant of full-flow-agentic.yaml, over Tavily |
+| [where-is-treasure.yaml](configs/anthropic/where-is-treasure.yaml) | Minimal server-owned ("managed") tool with no outbound callout: answers a managed tool call with a fixed, configured string, re-encoding the terminal answer as SSE when the client asked to stream |
 
 ### Azure
 

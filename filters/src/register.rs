@@ -397,6 +397,10 @@ fn register_anthropic_filters(registry: &mut FilterRegistry, subrequest_client: 
         @register registry,
         http "openai_chat_completions_to_anthropic_stream" => praxis_ai_apis::anthropic::OpenaiChatCompletionsToAnthropicStreamFilter::from_config
     );
+    praxis_filter::register_filters!(
+        @register registry,
+        http "where_is_treasure" => praxis_ai_apis::anthropic::WhereIsTreasureFilter::from_config
+    );
     register_anthropic_web_search(registry, subrequest_client);
 }
 
